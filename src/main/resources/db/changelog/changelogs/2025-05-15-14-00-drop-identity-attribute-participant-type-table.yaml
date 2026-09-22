@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Mirko Raimo
+      changes:
+        - dropTable:
+            tableName: identity_attribute_participant_type

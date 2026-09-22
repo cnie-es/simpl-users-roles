@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>eu.europa.ec.simpl</groupId>
+        <artifactId>simpl-parent</artifactId>
+        <version>2.11.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- Fork coordinates: without an explicit groupId this project inherited the licensor's
+         eu.europa.ec.simpl from the parent, which identified a modified artifact under a namespace
+         CNIE-ES does not control. The parent coordinate above is left untouched: there it
+         correctly identifies a third-party artifact. EUPL-1.2 Art. 5, Legal Protection. -->
+    <groupId>es.cnie.simpl</groupId>
+    <artifactId>simpl-users-roles</artifactId>
+    <version>2.11.1-edval</version>
+    <packaging>jar</packaging>
+    <url>https://github.com/cnie-es/simpl-users-roles</url>
+
+    <developers>
+        <developer>
+            <name>EDNEL-RIOJA project team</name>
+            <organization>CNIE-ES</organization>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/cnie-es/simpl-users-roles.git</connection>
+        <developerConnection>scm:git:git@github.com:cnie-es/simpl-users-roles.git</developerConnection>
+        <url>https://github.com/cnie-es/simpl-users-roles</url>
+    </scm>
+
+    <properties>
+        <simpl.httpclient.version>2.6.1</simpl.httpclient.version>
+        <license.skipDownloadLicenses>true</license.skipDownloadLicenses>
+    </properties>
+
+    <name>UsersRoles (CNIE-ES fork)</name>
+    <description>Users and roles - modified version of SIMPL users-roles (upstream commit a0badf5c), modified by the EDNEL-RIOJA project team for CNIE-ES between 2026-03-03 and 2026-09-18. See NOTICE.EDNEL.md.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.simpl</groupId>
+            <artifactId>simpl-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.simpl</groupId>
+            <artifactId>simpl-api-iaa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.simpl</groupId>
+            <artifactId>simpl-http-client-core</artifactId>
+            <version>${simpl.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.simpl</groupId>
+            <artifactId>simpl-http-client-okhttp</artifactId>
+            <version>${simpl.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.hateoas</groupId>
+            <artifactId>spring-hateoas</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.simpl</groupId>
+            <artifactId>simpl-test-lib</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.instancio</groupId>
+            <artifactId>instancio-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludeInfoProperties>
+                        <excludeInfoProperty>group</excludeInfoProperty>
+                        <excludeInfoProperty>artifact</excludeInfoProperty>
+                    </excludeInfoProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resource-dependencies</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>eu.europa.ec.simpl</groupId>
+                                    <artifactId>simpl-api-iaa</artifactId>
+                                    <version>${parent.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.basedir}/openapi</outputDirectory>
+                                    <fileMappers>
+                                        <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
+                                    </fileMappers>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>static/openapi/usersroles-v1.yaml,static/openapi/tier-1/usersroles-tier1-v2.yaml,static/openapi/applicationinfo-v1.yaml</includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>common-maven</id>
+            <url>https://code.europa.eu/api/v4/projects/796/packages/maven</url>
+        </repository>
+        <repository>
+            <id>http-client-maven</id>
+            <url>https://code.europa.eu/api/v4/projects/859/packages/maven</url>
+        </repository>
+    </repositories>
+
+    <licenses>
+        <license>
+            <name>EUROPEAN UNION PUBLIC LICENCE v. 1.2</name>
+            <url>https://eupl.eu/1.2/en/</url>
+            <distribution>repo</distribution>
+            <comments>EUPL © the European Union 2007, 2016</comments>
+        </license>
+    </licenses>
+</project>

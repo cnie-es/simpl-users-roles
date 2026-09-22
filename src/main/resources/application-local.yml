@@ -1,0 +1,48 @@
+spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:30432/usersroles
+#    username: usersroles
+#    password: usersroles
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: false
+#  kafka:
+#    bootstrap-servers: localhost:9092
+  datasource:
+    hikari:
+      maximum-pool-size: 1
+
+logging:
+  config: classpath:log4j2-local.xml
+
+keycloak:
+#  url: http://localhost:9010/auth
+#  master:
+#    user: admin
+#    password: admin
+  app:
+#    realm: authority
+    client-id: frontend-cli
+
+client:
+  authority:
+    url: https://localhost:8143
+
+#simpl:
+#  kafka:
+#    topic:
+#      prefix: iaa.iaa-dsdev-consumer.
+#    inbox:
+#      topic:
+#        pattern: iaa\.iaa-dsdev-consumer\..*
+
+#server:
+#  port: 8081
+
+#microservice:
+#  identity-provider:
+#    url: http://localhost:8081
+#  authentication-provider:
+#    url: http://localhost:8085
+

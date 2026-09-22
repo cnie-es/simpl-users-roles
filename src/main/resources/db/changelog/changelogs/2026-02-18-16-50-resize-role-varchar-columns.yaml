@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: Marco Amoia
+      changes:
+        - modifyDataType:
+            tableName: role
+            columnName: code
+            newDataType: VARCHAR(255)
+        - modifyDataType:
+            tableName: role
+            columnName: name
+            newDataType: VARCHAR(255)
+        - modifyDataType:
+            tableName: role
+            columnName: description
+            newDataType: VARCHAR(255)

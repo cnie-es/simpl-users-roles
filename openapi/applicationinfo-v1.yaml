@@ -1,0 +1,155 @@
+openapi: 3.0.1
+info:
+  title: Application Info
+  description: OpenAPI definition for the application info endpoints
+  contact:
+    name: Simpl Programme
+    url: https://simpl-programme.ec.europa.eu/
+    email: cnect-simpl@ec.europa.eu
+  license:
+    name: European Union Public License (EUPL) 1.2
+    url: https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_en.pdf
+  version: 1.0.0
+servers:
+- url: https://localhost:8080/v1
+  description: applicationinfo
+security:
+- mtls: []
+- mtlsWithEphemeralProof: []
+- oauth2AuthCode: []
+- oauth2ClientCredentials: []
+tags:
+- name: Application Info
+  description: API for retrieving information about the running application
+paths:
+  /info/version:
+    get:
+      tags:
+      - Application Info
+      summary: Retrieve information about the version of the running application
+      description: Retrieve information about the version of the running application
+      operationId: version
+      responses:
+        "200":
+          description: Version information returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationVersion"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    git:
+                      commit:
+                        id: id
+                        time: time
+                      branch: branch
+                    build:
+                      artifact: artifact
+                      name: name
+                      time: time
+                      version: version
+                      group: group
+      security: []
+components:
+  schemas:
+    ApplicationVersion:
+      type: object
+      example:
+        git:
+          commit:
+            id: id
+            time: time
+          branch: branch
+        build:
+          artifact: artifact
+          name: name
+          time: time
+          version: version
+          group: group
+      properties:
+        git:
+          $ref: "#/components/schemas/ApplicationVersionGit"
+        build:
+          $ref: "#/components/schemas/ApplicationVersionBuild"
+      required:
+      - build
+      - git
+    ApplicationVersionGitCommit:
+      type: object
+      example:
+        id: id
+        time: time
+      properties:
+        id:
+          type: string
+        time:
+          type: string
+      required:
+      - id
+      - time
+    ApplicationVersionGit:
+      type: object
+      example:
+        commit:
+          id: id
+          time: time
+        branch: branch
+      properties:
+        branch:
+          type: string
+        commit:
+          $ref: "#/components/schemas/ApplicationVersionGitCommit"
+      required:
+      - branch
+      - commit
+    ApplicationVersionBuild:
+      type: object
+      example:
+        artifact: artifact
+        name: name
+        time: time
+        version: version
+        group: group
+      properties:
+        artifact:
+          type: string
+        name:
+          type: string
+        time:
+          type: string
+        version:
+          type: string
+        group:
+          type: string
+      required:
+      - artifact
+      - group
+      - name
+      - time
+      - version
+  securitySchemes:
+    mtls:
+      type: http
+      description: SIMPL Tier 2 mTLS authentication process
+      scheme: mutual
+    mtlsWithEphemeralProof:
+      type: http
+      description: SIMPL Tier 2 mTLS authentication process with Ephemeral Proof exchange
+      scheme: mutual
+    oauth2AuthCode:
+      type: oauth2
+      description: SIMPL Tier1 end users authentication process
+      flows:
+        authorizationCode:
+          authorizationUrl: ""
+          tokenUrl: ""
+          scopes: {}
+    oauth2ClientCredentials:
+      type: oauth2
+      description: SIMPL internal APIs authentication process
+      flows:
+        clientCredentials:
+          tokenUrl: ""
+          scopes: {}

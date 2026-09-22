@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Jean Claude Correale
+      changes:
+        - createTable:
+            tableName: inbox
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_outbox
+              - column:
+                  name: topic
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: message
+                  type: text
+              - column:
+                  name: message_key
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: processed
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: "false"
+              - column:
+                  name: creation_timestamp
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false

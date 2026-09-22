@@ -1,0 +1,1364 @@
+openapi: 3.0.1
+info:
+  title: User and Roles
+  description: OpenAPI definition for the User and Roles component of the SIMPL project
+  contact:
+    name: Simpl Programme
+    url: https://simpl-programme.ec.europa.eu/
+    email: cnect-simpl@ec.europa.eu
+  license:
+    name: European Union Public License (EUPL) 1.2
+    url: https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_en.pdf
+  version: 1.5.0
+servers:
+- url: https://localhost:8081/v1
+  description: usersroles
+security:
+- mtls: []
+- mtlsWithEphemeralProof: []
+- oauth2AuthCode: []
+- oauth2ClientCredentials: []
+tags:
+- name: Users
+  description: API for managing Users
+- name: Roles
+  description: API for managing Roles
+paths:
+  /roles:
+    get:
+      tags:
+      - Roles
+      summary: Search roles
+      description: Searches for roles based on the provided filter criteria and pagination
+        settings
+      operationId: searchRoles
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        examples:
+          default:
+            summary: Default example
+            value: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+        examples:
+          default:
+            summary: Default example
+            value: 10
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          default:
+          - "id,ASC"
+          items:
+            type: string
+        examples:
+          default:
+            summary: Default example
+            value: "id,ASC"
+      - name: filter
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: "#/components/schemas/SearchRolesFilterParameter"
+        examples:
+          default:
+            summary: Default example
+            value:
+              name:
+              - Tier 2 authorisation operator
+              - Tier 2 authorisation manager
+              description: tier 2 authorisation operator
+              attributeName: CONSUMER
+        x-parameter-object: true
+      responses:
+        "200":
+          description: Successfully retrieved the list of roles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseRole"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    page:
+                      number: 6
+                      size: 0
+                      totalPages: 5
+                      totalElements: 1
+                    content:
+                    - assignedIdentityAttributes:
+                      - DATA_PROVIDER_PUBLISHER
+                      - APP_PROVIDER_PUBLISHER
+                      - INFRA_PROVIDER_PUBLISHER
+                      name: Ro-MU-A
+                      description: "Role defined in XFSC Federated Catalogue: Participant\
+                        \ Administrator"
+                      id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+                    - assignedIdentityAttributes:
+                      - DATA_PROVIDER_PUBLISHER
+                      - APP_PROVIDER_PUBLISHER
+                      - INFRA_PROVIDER_PUBLISHER
+                      name: Ro-Pa-A
+                      description: "Role defined in XFSC Federated Catalogue: Participant\
+                        \ User Administrator"
+                      id: da5a7a86-d27e-442c-ae5a-13dade9bb0c4
+                    empty: false
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - GET /tier1/v2/roles
+        reason: Changes in response data
+    post:
+      tags:
+      - Roles
+      summary: Create a new role
+      description: Creates a new role in the system with the provided details
+      operationId: create
+      requestBody:
+        description: The details of the role to be created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Role"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  name: SD_CONSUMER
+                  description: Tier-1 Role for Consumer
+        required: true
+      responses:
+        "201":
+          description: Successfully created the role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                  - assignedIdentityAttributes:
+                    - DATA_PROVIDER_PUBLISHER
+                    - APP_PROVIDER_PUBLISHER
+                    - INFRA_PROVIDER_PUBLISHER
+                    name: Ro-MU-A
+                    description: "Role defined in XFSC Federated Catalogue: Participant\
+                      \ Administrator"
+                    id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - POST /tier1/v2/roles
+        reason: Changes in response data
+  /roles/{roleId}:
+    get:
+      tags:
+      - Roles
+      summary: Find role by ID
+      description: Retrieves a role by its unique identifier (UUID)
+      operationId: findById
+      parameters:
+      - name: roleId
+        in: path
+        description: The UUID of the role
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        "200":
+          description: Successfully retrieved the role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                  - assignedIdentityAttributes:
+                    - DATA_PROVIDER_PUBLISHER
+                    - APP_PROVIDER_PUBLISHER
+                    - INFRA_PROVIDER_PUBLISHER
+                    name: Ro-MU-A
+                    description: "Role defined in XFSC Federated Catalogue: Participant\
+                      \ Administrator"
+                    id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "GET /tier1/v2/roles/{roleId}"
+        reason: Changes in request and response data
+    put:
+      tags:
+      - Roles
+      summary: Update an existing role
+      description: Updates the details of an existing role in the system
+      operationId: update
+      parameters:
+      - name: roleId
+        in: path
+        description: The UUID of the role
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        description: The details of the role to be updated
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Role"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - assignedIdentityAttributes:
+                  - DATA_PROVIDER_PUBLISHER
+                  - APP_PROVIDER_PUBLISHER
+                  - INFRA_PROVIDER_PUBLISHER
+                  name: Ro-MU-A
+                  description: "Role defined in XFSC Federated Catalogue: Participant\
+                    \ Administrator"
+                  id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        required: true
+      responses:
+        "200":
+          description: Successfully updated the role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                  - assignedIdentityAttributes:
+                    - DATA_PROVIDER_PUBLISHER
+                    - APP_PROVIDER_PUBLISHER
+                    - INFRA_PROVIDER_PUBLISHER
+                    name: Ro-MU-A
+                    description: "Role defined in XFSC Federated Catalogue: Participant\
+                      \ Administrator"
+                    id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "PUT /tier1/v2/roles/{roleId}"
+        reason: Changes in request and response data
+    delete:
+      tags:
+      - Roles
+      summary: Delete a role by id
+      description: Removes a role from the system using its id
+      operationId: deleteCredential
+      parameters:
+      - name: roleId
+        in: path
+        description: The name of the role to be deleted
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 0de8a1aa-3b44-42f7-b34d-1f826aae7aa4
+      responses:
+        "204":
+          description: Successfully deleted the role
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "DELETE /tier1/v2/roles/{roleId}"
+  /roles/{roleId}/identityAttributes:
+    put:
+      tags:
+      - Roles
+      summary: Assign identity attributes to a role
+      description: Assigns a list of identity attribute IDs to a specified role
+      operationId: replaceIdentityAttributes
+      parameters:
+      - name: roleId
+        in: path
+        description: The UUID of the role to which identity attributes will be assigned
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        description: List of identity attribute codes to be assigned to the role
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+            examples:
+              default:
+                summary: Default example
+                value:
+                - CONSUMER
+                - DATA_PROVIDER
+        required: true
+      responses:
+        "200":
+          description: Successfully assigned identity attributes
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "PUT /tier1/v2/roles/{roleId}/identityAttributes"
+    delete:
+      tags:
+      - Roles
+      summary: Delete an identity attribute from a role
+      description: Removes an identity attribute from a specified role
+      operationId: deleteAttributeFromRole
+      parameters:
+      - name: roleId
+        in: path
+        description: The UUID of the role
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 8f031077-1d65-4f9c-96cf-8a388db51469
+      - name: attributeCode
+        in: query
+        description: The code of the attribute to be removed
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: 8f031077-1d65-4f9c-96cf-8a388db51469
+      responses:
+        "204":
+          description: Successfully removed the attribute from the role
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "DELETE /tier1/v2/roles/{roleId}/identityAttributes"
+  /roles/{roleId}/identityAttributes/duplicate:
+    post:
+      tags:
+      - Roles
+      summary: Duplicate identity attributes to another role
+      description: Duplicates identity attributes from the source role to the destination
+        role
+      operationId: duplicateIdentityAttributeToAnOtherRole
+      parameters:
+      - name: roleId
+        in: path
+        description: The UUID of the source role
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 86b0bfdc-fb11-4aae-b2e4-bef98803af48
+      requestBody:
+        description: The UUID of the destination role
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              default:
+                summary: Default example
+                value: 32faef50-bd37-4265-a935-76033772e722
+        required: true
+      responses:
+        "200":
+          description: Successfully duplicated identity attributes
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Source or destination role not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                summary: Source or destination role not found
+                value:
+                  type: urn:problem-type:simpl:roleNotFound
+                  title: Source or destination role not found
+                  detail: Source or destination role not found
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /users:
+    get:
+      tags:
+      - Users
+      summary: Search users
+      description: Searches for users based on various filter criteria
+      operationId: search
+      parameters:
+      - name: username
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: aliza.clay
+      - name: firstName
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: aliza
+      - name: lastName
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: clay
+      - name: email
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: aliza.clay@example.com
+      - name: first
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+        examples:
+          default:
+            summary: Default example
+            value: 0
+      - name: max
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+        examples:
+          default:
+            summary: Default example
+            value: 10
+      responses:
+        "200":
+          description: Successfully retrieved list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                  - firstName: Alexander
+                    lastName: Williams
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                    id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                    email: a.w@email.com
+                    enabled: true
+                    username: a.w
+                  - firstName: Alexander
+                    lastName: Williams
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                    id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                    email: a.w@email.com
+                    enabled: true
+                    username: a.w
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - GET /tier1/v2/users
+        reason: Added pagination metadata
+    post:
+      tags:
+      - Users
+      summary: Creates a user
+      description: Creates a user with the provided data
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  firstName: Alexander
+                  lastName: Williams
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+                  id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                  email: a.w@email.com
+                  enabled: true
+                  username: a.w
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                default:
+                  summary: Default example
+                  value: 87ecf023-2b81-40c1-a0e6-1ee3129cca09
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles: []
+      x-deprecation-info:
+        replacements:
+        - POST /tier1/v2/users
+        reason: Changes in response data
+  /users/{userId}:
+    get:
+      tags:
+      - Users
+      summary: Get user by UUID
+      description: Retrieves a user by its UUID
+      operationId: getUserByUuid
+      parameters:
+      - name: userId
+        in: path
+        description: The UUID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: 01929051-2adb-7ee5-994a-b36f64fbb4dd
+      responses:
+        "200":
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    firstName: Alexander
+                    lastName: Williams
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                    id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                    email: a.w@email.com
+                    enabled: true
+                    username: a.w
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "GET /tier1/v2/users/{userId}"
+        reason: Changes in response data
+    put:
+      tags:
+      - Users
+      summary: Update user
+      description: Updates the details of an existing user by its UUID
+      operationId: updateUser
+      parameters:
+      - name: userId
+        in: path
+        description: The UUID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: 01929051-2adb-7ee5-994a-b36f64fbb4dd
+      requestBody:
+        description: The user details to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  firstName: Alexander
+                  lastName: Williams
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+                  id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                  email: a.w@email.com
+                  enabled: true
+                  username: a.w
+        required: true
+      responses:
+        "200":
+          description: User updated successfully
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "PUT /tier1/v2/users/{userId}"
+        reason: Changes in response data
+    delete:
+      tags:
+      - Users
+      summary: Delete user
+      description: Deletes a user by its UUID
+      operationId: deleteUser
+      parameters:
+      - name: userId
+        in: path
+        description: The UUID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: 01929051-2adb-7ee5-994a-b36f64fbb4dd
+      responses:
+        "204":
+          description: User deleted successfully
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "DELETE /tier1/v2/users/{userId}"
+        reason: Changes in response data
+  /users/{userId}/roles:
+    get:
+      tags:
+      - Users
+      summary: Get user roles
+      description: Retrieves the roles associated with a user by its UUID
+      operationId: getRoles
+      parameters:
+      - name: userId
+        in: path
+        description: The UUID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: 01929051-2adb-7ee5-994a-b36f64fbb4dd
+      responses:
+        "200":
+          description: Successfully retrieved user roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Role"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                  - name: RESEARCHER
+                    description: Researcher who is able to access research only datasets
+                  - name: SD_CONSUMER
+                    description: Tier-1 Role for Consumer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "GET /tier1/v2/users/{userId}/roles"
+        reason: Changes in request and response data
+    put:
+      tags:
+      - Users
+      summary: Update user roles
+      description: Updates the roles associated with a user by its UUID
+      operationId: updateUserRoles
+      parameters:
+      - name: userId
+        in: path
+        description: The UUID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        examples:
+          default:
+            summary: Default example
+            value: 01929051-2adb-7ee5-994a-b36f64fbb4dd
+      requestBody:
+        description: The list of roles to be assigned to the user
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+            examples:
+              default:
+                summary: Default example
+                value:
+                - RESEARCHER
+                - SD_CONSUMER
+        required: true
+      responses:
+        "200":
+          description: User roles updated successfully
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "PUT /tier1/v2/users/{userId}/roles"
+        reason: Changes in request data
+  /users/import:
+    post:
+      tags:
+      - Users
+      summary: Import the provided users into the system
+      description: Import the provided users into the system
+      operationId: importUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - firstName: Alexander
+                  lastName: Williams
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+                  id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                  email: a.w@email.com
+                  enabled: true
+                  username: a.w
+                - firstName: Alexander
+                  lastName: Williams
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+                  id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                  email: a.w@email.com
+                  enabled: true
+                  username: a.w
+        required: true
+      responses:
+        "201":
+          description: Created
+          x-microcks-refs:
+          - default
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - GET /tier1/v2/users/import
+        reason: Changes in response data
+  /roles/import:
+    post:
+      tags:
+      - Roles
+      summary: Import the provided roles into the system
+      description: Import the provided roles into the system
+      operationId: importRoles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Role"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - name: RESEARCHER
+                  description: Researcher who is able to access research only datasets
+                - name: SD_CONSUMER
+                  description: Tier-1 Role for Consumer
+        required: true
+      responses:
+        "201":
+          description: Created
+          x-microcks-refs:
+          - default
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      deprecated: true
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+      x-deprecation-info:
+        replacements:
+        - "GET /tier1/v2/roles/{roleId}/import"
+        reason: Changes in request data
+components:
+  schemas:
+    PageMetadata:
+      type: object
+      example:
+        number: 6
+        size: 0
+        totalPages: 5
+        totalElements: 1
+      properties:
+        size:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+    User:
+      type: object
+      example:
+        firstName: Alexander
+        lastName: Williams
+        roles:
+        - ONBOARDER_M
+        - T1UAR_M
+        id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+        email: a.w@email.com
+        enabled: true
+        username: a.w
+      properties:
+        id:
+          type: string
+          maxLength: 255
+          readOnly: true
+        username:
+          type: string
+          maxLength: 255
+        firstName:
+          type: string
+          maxLength: 255
+        lastName:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          maxLength: 255
+        password:
+          type: string
+          maxLength: 255
+        roles:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+      required:
+      - email
+      - enabled
+      - firstName
+      - lastName
+      - password
+      - username
+    Role:
+      type: object
+      example:
+      - assignedIdentityAttributes:
+        - DATA_PROVIDER_PUBLISHER
+        - APP_PROVIDER_PUBLISHER
+        - INFRA_PROVIDER_PUBLISHER
+        name: Ro-MU-A
+        description: "Role defined in XFSC Federated Catalogue: Participant Administrator"
+        id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 255
+        assignedIdentityAttributes:
+          type: array
+          items:
+            type: string
+      required:
+      - name
+    PageResponseRole:
+      type: object
+      example:
+        page:
+          number: 6
+          size: 0
+          totalPages: 5
+          totalElements: 1
+        content:
+        - assignedIdentityAttributes:
+          - DATA_PROVIDER_PUBLISHER
+          - APP_PROVIDER_PUBLISHER
+          - INFRA_PROVIDER_PUBLISHER
+          name: Ro-MU-A
+          description: "Role defined in XFSC Federated Catalogue: Participant Administrator"
+          id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        - assignedIdentityAttributes:
+          - DATA_PROVIDER_PUBLISHER
+          - APP_PROVIDER_PUBLISHER
+          - INFRA_PROVIDER_PUBLISHER
+          name: Ro-Pa-A
+          description: "Role defined in XFSC Federated Catalogue: Participant User\
+            \ Administrator"
+          id: da5a7a86-d27e-442c-ae5a-13dade9bb0c4
+        empty: false
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+        empty:
+          type: boolean
+    Problem:
+      type: object
+      description: |
+        A Problem Details object (RFC 9457).
+
+        Additional properties specific to the problem type may be present.
+      example:
+        type: urn:problem-type:exampleOrganization:exampleProblem
+        href: https://www.belgif.be/specification/rest/api-guide/#standardized-problem-types
+        title: Description of the type of problem that occurred
+        status: 400
+        detail: Description of specific occurrence of the problem
+        instance: urn:uuid:123e4567-e89b-12d3-a456-426614174000
+      properties:
+        type:
+          type: string
+          format: uri
+          default: about:blank
+          description: |
+            An absolute URI that identifies the problem type.  When dereferenced,
+            it SHOULD provide human-readable documentation for the problem type
+            (e.g., using HTML).
+          example: https://zalando.github.io/problem/constraint-violation
+        title:
+          type: string
+          description: |
+            A short, summary of the problem type. Written in english and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized); example: Service Unavailable
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence
+            of the problem.
+          example: 503
+          maximum: 600
+          minimum: 100
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Connection to database timed out
+        instance:
+          type: string
+          format: uri
+          description: |-
+            An absolute URI that identifies the specific occurrence of the problem.
+            It may or may not yield further information if dereferenced.
+    SearchRolesFilterParameter:
+      type: object
+      properties:
+        name:
+          type: array
+          items:
+            type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 255
+        attributeName:
+          type: string
+          maxLength: 255
+  responses:
+    BadRequest:
+      description: "Bad request, invalid input data"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            badRequest:
+              summary: Bad Request
+              value:
+                type: urn:problem-type:simpl:badRequest
+                title: Bad request
+                detail: Invalid input data
+                status: 400
+    Unauthorized:
+      description: "Unauthorized, the user is not authenticated"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            unauthorized:
+              summary: Unauthorized
+              value:
+                type: urn:problem-type:simpl:unauthorized
+                title: Unauthorized
+                detail: The user is not authenticated
+                status: 401
+    Forbidden:
+      description: "Forbidden, the user does not have the roles to perform the operation"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            forbidden:
+              summary: Forbidden
+              value:
+                type: urn:problem-type:simpl:forbidden
+                title: Forbidden
+                detail: The user does not have the roles to perform the operation
+                status: 403
+    Conflict:
+      description: "Conflict, action requested cannot be performed"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            conflict:
+              summary: Conflict
+              value:
+                type: urn:problem-type:simpl:conflict
+                title: Conflict
+                detail: Conflict
+                status: 409
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            notFound:
+              summary: Not Found
+              value:
+                type: urn:problem-type:simpl:notFound
+                title: Not Found
+                detail: Resource not found
+                status: 404
+  securitySchemes:
+    mtls:
+      type: http
+      description: SIMPL Tier 2 mTLS authentication process
+      scheme: mutual
+    mtlsWithEphemeralProof:
+      type: http
+      description: SIMPL Tier 2 mTLS authentication process with Ephemeral Proof exchange
+      scheme: mutual
+    oauth2AuthCode:
+      type: oauth2
+      description: SIMPL Tier1 end users authentication process
+      flows:
+        authorizationCode:
+          authorizationUrl: ""
+          tokenUrl: ""
+          scopes: {}
+    oauth2ClientCredentials:
+      type: oauth2
+      description: SIMPL internal APIs authentication process
+      flows:
+        clientCredentials:
+          tokenUrl: ""
+          scopes: {}

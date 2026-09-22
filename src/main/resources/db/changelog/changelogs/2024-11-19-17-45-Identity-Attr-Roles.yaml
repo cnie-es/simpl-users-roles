@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: Flavio Ferraioli
+      changes:
+        - renameColumn:
+            tableName: identity_attribute_roles
+            oldColumnName: role_id
+            newColumnName: role_name
+            columnDataType: VARCHAR(255)
+        - modifyDataType:
+            tableName: identity_attribute_roles
+            columnName: role_name
+            newDataType: VARCHAR(255)

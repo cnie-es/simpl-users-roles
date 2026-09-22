@@ -1,0 +1,33 @@
+server:
+  port: 8101
+
+keycloak:
+  url: http://localhost:8100/auth
+  master:
+    user: admin
+    password: admin
+  app:
+    realm: authority
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:30432/authority_usersroles
+    username: authority_usersroles
+    password: authority_usersroles
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      properties:
+        security.protocol: PLAINTEXT
+
+simpl:
+  kafka:
+    topic:
+      prefix: iaa.iaa-local-authority.
+    inbox:
+      topic:
+        pattern: iaa\.iaa-local-authority\..*
+
+microservice:
+  authentication-provider:
+    url: http://localhost:8105

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: Flavio Ferraioli
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: identity_attribute_roles
+            constraintName: identity_attribute_roles_role_id
+        - dropTable:
+            tableName: role

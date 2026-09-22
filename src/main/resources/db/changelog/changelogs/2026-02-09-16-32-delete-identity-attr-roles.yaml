@@ -1,0 +1,26 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 1
+      author: Matteo Blasi
+      changes:
+        - delete:
+            tableName: identity_attribute_roles
+            where: role IS NULL
+
+  - changeSet:
+      id: 2
+      author: Matteo Blasi
+      preConditions:
+        - onFail: HALT
+        - sqlCheck:
+            expectedResult: "0"
+            sql: |
+              SELECT COUNT(*)
+              FROM identity_attribute_roles
+              WHERE role IS NULL
+      changes:
+        - addNotNullConstraint:
+            tableName: identity_attribute_roles
+            columnName: role
+            columnDataType: UUID

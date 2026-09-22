@@ -1,0 +1,19 @@
+spring:
+  kafka:
+    bootstrap-servers: [SPRING_KAFKA_BOOTSTRAP_SERVERS]
+    consumer:
+      properties:
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER:admin}" password="${KAFKA_PASSWORD:admin-secret}";
+      group-id: users-roles
+    admin:
+      auto-create: true
+
+simpl:
+  kafka:
+    topic:
+      prefix: [SIMPL_KAFKA_TOPIC_PREFIX]
+    inbox:
+      topic:
+        pattern: [SIMPL_KAFKA_INBOX_TOPIC_PATTERN]

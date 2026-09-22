@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: Flavio Ferraioli
+      changes:
+        - addUniqueConstraint:
+            tableName: identity_attribute_roles
+            columnNames: ida_code, role_id
+            constraintName: uq_identity_attribute_roles_ida_code_role_id

@@ -1,0 +1,111 @@
+spring:
+  application:
+    name: users-roles
+  config:
+    import: classpath:config/kafka.yml
+  datasource:
+    url: [POSTGRES_URL]
+    username: [POSTGRES_USER]
+    password: [POSTGRES_PASSWORD]
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
+        format_sql: false
+    show-sql: true
+  jackson:
+    default-property-inclusion: NON_NULL
+  profiles:
+    group:
+      local-consumer:
+        - local
+        - participant
+      local-authority:
+        - local
+        - authority
+logging:
+  http:
+    enabled: true
+    excluded:
+      - method: GET
+        path: /actuator/health/readiness
+      - method: GET
+        path: /actuator/health/liveness
+  aspect:
+    component:
+      enabled: false
+      level: INFO
+    controller:
+      enabled: false
+      level: INFO
+    repository:
+      enabled: false
+      level: DEBUG
+    service:
+      enabled: false
+      level: INFO
+keycloak:
+  url: [KEYCLOAK_URL]
+  master:
+    realm: master
+    client-id: admin-cli
+    user: [KEYCLOAK_USER]
+    password: [KEYCLOAK_PASSWORD]
+  app:
+    realm: [KEYCLOAK_APP_REALM]
+    client-id: frontend-cli
+  client-to-realm-role-migration:
+    enabled: false # Set to true to import realm roles from client roles
+    client-ids: [ROLES_FROM_CLIENT_IDS]
+
+microservice:
+  authentication-provider:
+    url: [AUTHENTICATION_PROVIDER_URL]
+
+management:
+  info:
+    git:
+      enabled: true
+    build:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: [MANGEMENT_OTLP_TRACING_ENDPOINT]
+
+
+database-seeding:
+  role-attributes-mapping:
+    enabled: true
+    filePath: "classpath:db.seeding/roleAttributes.default.json"
+  role-persistence-migration:
+    excludeRoles: "default-roles-participant,offline_access,uma_authorization,default-roles-authority,default-roles-${keycloak.app.realm}"
+
+
+
+springdoc:
+  enable-hateoas: false
+  swagger-ui:
+    urlsPrimaryName: v1
+    urls:
+      - name: v1
+        url: /openapi/usersroles-v1.yaml
+      - name: v0
+        url: /openapi/usersroles-v0.yaml
+

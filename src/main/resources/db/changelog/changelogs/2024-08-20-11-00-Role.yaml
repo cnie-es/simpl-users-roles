@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: Jean Claude Correale
+      changes:
+        - createTable:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: descr
+                  type: VARCHAR(255)
+  - changeSet:
+      id: 1
+      author: Jean Claude Correale
+      changes:
+        - createTable:
+            tableName: identity_attribute_roles
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: ida_code
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: UUID
+                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+                    referencedTableName: role
+                    referencedColumnNames: id
+                    foreignKeyName: identity_attribute_roles_role_id
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false

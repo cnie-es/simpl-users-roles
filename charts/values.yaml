@@ -1,0 +1,159 @@
+replicaCount: 1
+image:
+  # Published image of this fork. Override for builds published elsewhere, e.g.
+  # --set image.repository=ghcr.io/<owner>/users-roles
+  repository: ghcr.io/cnie-es/users-roles
+  pullPolicy: Always
+  # Empty means .Chart.AppVersion. Set it to deploy a specific build, e.g. a commit SHA tag.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a services account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the services account
+  annotations: {}
+  # The name of the services account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 8080
+
+
+resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+livenessProbe:
+  httpGet:
+    path: "/actuator/health/liveness"
+    port: http
+  initialDelaySeconds: 120
+  periodSeconds: 5
+  failureThreshold: 10
+readinessProbe:
+  httpGet:
+    path: "/actuator/health/readiness"
+    port: http
+  initialDelaySeconds: 120
+  periodSeconds: 5
+  failureThreshold: 10
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  - name: spring-config
+    configMap:
+      name: users-roles-spring-configmap
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: spring-config
+    mountPath: /config/
+
+envFrom:
+  - configMapRef:
+      name: users-roles-configmap
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+hostT1: "" #your host tier 1
+authorityHostT2: "" #the authority host tier 2
+
+db:
+  url: jdbc:postgresql://postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/usersroles
+  username: usersroles
+  password: usersroles
+
+keycloak:
+  master:
+    user: "user"
+    password: "admin"
+    realm: "" #authority or participant
+
+#Kafka configuration, this is only an example!
+#  kafkaConfig:
+#    spring:
+#      kafka:
+#        bootstrap-servers: <your-kafka-url>
+#        consumer:
+#          group-id: users-roles
+#          properties:
+#            security.protocol: SASL_PLAINTEXT
+#            sasl.mechanism: PLAIN
+#            sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER:admin" password="${KAFKA_PASSWORD:admin-secret}";
+#        admin:
+#          auto-create: true
+#    simpl:
+#      kafka:
+#        topic:
+#          prefix: iaa.{{ .Release.Namespace }}.
+#      inbox:
+#        topic:
+#          pattern: iaa\.{{ .Release.Namespace }}\..*
+
+kafkaConfig: {}
+
+#path of extra config to add to the deploy, separated by comma
+extraConfigImport: /config/kafka.yml
+
+microservices:
+  authenticationProviderUrl: http://authentication-provider.{{ .Release.Namespace }}.svc.cluster.local:8080
+
+# In order to use an external file for initializing the mapping between roles and identity attributes, uncomment the
+# following property section. 'enabled' must be set to true. 'filePath' must start with "file:"
+# databaseSeeding:
+#   roleIdentityAttributesMapping:
+#     enabled: true
+#     filePath: file:/app/config/roleAttributes.json
+
+devMode: false
+
+#appConfig:
+#  management:
+#    tracing:
+#      sampling:
+#        probability: [MANAGEMENT_TRACING_SAMPLING_PROBABILITY]
+#    otlp:
+#      tracing:
+#        endpoint: [MANAGEMENT_OTLP_TRACING_ENDPOINT]
+appConfig: {}

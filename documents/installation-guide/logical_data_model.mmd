@@ -1,0 +1,39 @@
+classDiagram
+
+    class Role {
+        +uuid id
+        +string code
+        +string name
+        +string description
+        +boolean builtIn
+        +boolean enabled
+    }
+
+    class IdentityAttributeRoles {
+        +uuid id
+        +string ida_code
+        +uuid role
+        +boolean enabled
+    }
+
+    class RoleRequest  {
+            +uuid id
+            +string user_email
+            +string status
+            +timestamp creation_timestamp
+            +timestamp last_update_timestamp
+            +string reviewed_by
+        }
+
+    class RoleRequested  {
+                +uuid id
+                +uuid role_request_id
+                +string role
+                +string requested_by
+                +boolean approved
+                +timestamp requested_timestamp
+            }
+
+    RoleRequest "1" -- "1..n" RoleRequested
+
+    Role "1" -- "1..n" IdentityAttributeRoles

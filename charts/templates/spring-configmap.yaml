@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-spring-configmap
+data:
+  kafka.yml: |
+{{ tpl (toYaml .Values.kafkaConfig) . | indent 4 }}
+  application.yml: |
+{{ tpl (toYaml .Values.appConfig) . | indent 4 }}

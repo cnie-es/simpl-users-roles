@@ -1,0 +1,26 @@
+[
+  {
+    "role": "SD_PUBLISHER",
+    "identityAttributes": [
+      "DATA_PROVIDER_PUBLISHER",
+      "APP_PROVIDER_PUBLISHER",
+      "INFRA_PROVIDER_PUBLISHER"
+    ]
+  },
+  {
+    "role": "Ro-MU-A",
+    "identityAttributes": [
+      "DATA_PROVIDER_PUBLISHER",
+      "APP_PROVIDER_PUBLISHER",
+      "INFRA_PROVIDER_PUBLISHER"
+    ]
+  },
+  {
+    "role": "Ro-Pa-A",
+    "identityAttributes": [
+      "DATA_PROVIDER_PUBLISHER",
+      "APP_PROVIDER_PUBLISHER",
+      "INFRA_PROVIDER_PUBLISHER"
+    ]
+  }
+]

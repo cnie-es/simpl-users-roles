@@ -1,0 +1,2912 @@
+openapi: 3.0.1
+info:
+  title: User and Roles Tier 1
+  description: Tier 1 APIs for managing Users and Roles in the Simpl-Open Agent
+  contact:
+    name: Simpl Programme
+    url: https://simpl-programme.ec.europa.eu/
+    email: cnect-simpl@ec.europa.eu
+  license:
+    name: European Union Public License (EUPL) 1.2
+    url: https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_en.pdf
+  version: 2.0.0
+servers:
+- url: https://localhost:8082/tier1/v2
+  description: usersroles
+security:
+- oauth2ClientCredentials: []
+tags:
+- name: Users
+  description: Manages the Users of the Simpl-Open Agent
+- name: Roles
+  description: Manages the Roles of the Simpl-Open Agent
+- name: User Session
+  description: Helps users to retrieve their session data
+paths:
+  /users/{userId}:
+    get:
+      tags:
+      - Users
+      summary: Find User by ID
+      description: Retrieves a User by its unique identifier.
+      operationId: getUserById
+      parameters:
+      - name: userId
+        in: path
+        description: UUID of the User to be retrieved
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 8f031077-1d65-4f9c-96cf-8a388db51469
+          getUser:
+            summary: Get user by user ID example
+            value: 9f031077-1d65-4f9c-96cf-8a388db51469
+          notFound:
+            summary: Bad request example
+            value: 7f031077-1d65-4f9c-96cf-8a388db51469
+          badRequest:
+            summary: Bad request example
+            value: 6f031077-1d65-4f9c-96cf-8a388db51469
+          unauthorized:
+            summary: Unauthorized access example
+            value: 5f031077-1d65-4f9c-96cf-8a388db51469
+          forbidden:
+            summary: Forbidden access example
+            value: 4f031077-1d65-4f9c-96cf-8a388db51469
+      responses:
+        "200":
+          description: Successfully retrieved User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    id: 8f031077-1d65-4f9c-96cf-8a388db51469
+                    firstName: Alexander
+                    lastName: Williams
+                    username: a.w
+                    email: a.w@email.com
+                    status: ENABLED
+                    federated: false
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                getUser:
+                  summary: Default example
+                  value:
+                    id: 9f031077-1d65-4f9c-96cf-8a388db51469
+                    firstName: Alexander
+                    lastName: Williams
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                    email: a.w@email.com
+                    password: password
+                    enabled: false
+                    username: a.w
+                    federated: false
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    put:
+      tags:
+      - Users
+      summary: Update User
+      description: Updates an existing User by its unique identifier.
+      operationId: updateUserById
+      parameters:
+      - name: userId
+        in: path
+        description: UUID of the User to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: f50f9747-4fd4-4057-9937-1a86dd6e7142
+          updateUserExample:
+            summary: Default example
+            value: f49f9747-4fd4-4057-9937-1a86dd6e7142
+          notFound:
+            summary: Bad request example
+            value: 7f031077-1d65-4f9c-96cf-8a388db51469
+          badRequest:
+            summary: Bad request example
+            value: 6f031077-1d65-4f9c-96cf-8a388db51469
+          unauthorized:
+            summary: Unauthorized access example
+            value: 5f031077-1d65-4f9c-96cf-8a388db51469
+          forbidden:
+            summary: Forbidden access example
+            value: 4f031077-1d65-4f9c-96cf-8a388db51469
+      requestBody:
+        description: Updated User data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  firstName: Alexander
+                  lastName: Williams
+                  username: a.w
+                  email: a.w@email.com
+                  enabled: true
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+              updateUserExample:
+                summary: update user
+                value:
+                  firstName: Alexander
+                  lastName: Doe
+                  username: a.w
+                  email: a.w@email.com
+                  enabled: true
+                  roles:
+                  - T1UAR_M
+        required: true
+      responses:
+        "204":
+          description: Successfully updated User
+          x-microcks-refs:
+          - default
+          - updateUserExample
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-microcks-operation:
+        dispatcher: JSON_BODY
+        dispatcherRules: |
+          {
+            "exp": "/email",
+            "operator": "equals",
+            "cases": {
+              "a.w@email.com": "updateUserExample",
+              "a.wemail.com": "badRequest",
+              "aa.w@email.com": "conflict",
+              "unauthorized@email.com": "unauthorized",
+              "forbidden@email.com": "forbidden",
+              "w.a@email.com": "notFound",
+              "default": "badRequest"
+            }
+          }
+      x-simpl-roles:
+      - T1UAR_M
+    delete:
+      tags:
+      - Users
+      summary: Delete User
+      description: Deletes an User by its unique identifier.
+      operationId: deleteUserById
+      parameters:
+      - name: userId
+        in: path
+        description: UUID of the User to be deleted
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 25827477-c58d-4573-ad7d-f80e27d3fede
+          deleteUser:
+            summary: delete user
+            value: f49f9747-4fd4-4057-9937-1a86dd6e7142
+          notFound:
+            summary: 404 - Not found
+            value: e49f9747-4fd4-4057-9937-1a86dd6e7142
+          badRequest:
+            summary: 400 - Bad request example
+            value: 6f031077-1d65-4f9c-96cf-8a388db51469
+          unauthorized:
+            summary: 401 - unauthorized
+            value: 5f031077-1d65-4f9c-96cf-8a388db51469
+          forbidden:
+            summary: 403 - forbidden
+            value: 4f031077-1d65-4f9c-96cf-8a388db51469
+      responses:
+        "204":
+          description: Successfully deleted User
+          x-microcks-refs:
+          - default
+          - deleteUser
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /users/{userId}/roles:
+    get:
+      tags:
+      - Users
+      summary: Retrieve roles for a user
+      description: Returns the list of roles associated with the specified user.
+      operationId: getUserRoles
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          getRoles:
+            summary: get a user's roles
+            value: f49f9747-4fd4-4057-9937-1a86dd6e7142
+          notFound:
+            summary: 404 - Not found
+            value: e49f9747-4fd4-4057-9937-1a86dd6e7142
+          badRequest:
+            summary: 400 - Bad request example
+            value: 6f031077-1d65-4f9c-96cf-8a388db51469
+          unauthorized:
+            summary: 401 - unauthorized
+            value: 5f031077-1d65-4f9c-96cf-8a388db51469
+          forbidden:
+            summary: 403 - forbidden
+            value: 4f031077-1d65-4f9c-96cf-8a388db51469
+      responses:
+        "200":
+          description: Successfully retrieved the list of roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Role"
+              examples:
+                getRoles:
+                  summary: get a user's roles
+                  value:
+                  - code: SD_PUBLISHER
+                    id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+                    name: SD Publisher
+                    description: User with permissions to publish data to the Simpl
+                      platform.
+                    builtIn: false
+                    enabled: true
+                  - code: RESEARCHER
+                    id: 123e4567-e89b-12d3-a456-426614174000
+                    name: Researcher
+                    description: User with permissions to access and analyze data
+                      on the Simpl platform.
+                    builtIn: false
+                    enabled: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    put:
+      tags:
+      - Users
+      summary: Update roles for a user
+      description: "Replaces the id for the specified user. If the list is empty,\
+        \ all existing roles will be deleted."
+      operationId: updateUserRoles
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          updateRoles:
+            summary: get a user's roles
+            value: f49f9747-4fd4-4057-9937-1a86dd6e7142
+          notFound:
+            summary: 404 - Not found
+            value: e49f9747-4fd4-4057-9937-1a86dd6e7142
+          badRequest:
+            summary: 400 - Bad request example
+            value: 6f031077-1d65-4f9c-96cf-8a388db51469
+          unauthorized:
+            summary: 401 - unauthorized
+            value: 5f031077-1d65-4f9c-96cf-8a388db51469
+          forbidden:
+            summary: 403 - forbidden
+            value: 4f031077-1d65-4f9c-96cf-8a388db51469
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleAssignmentRequest"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - code: SD_PUBLISHER
+                  id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+                - code: RESEARCHER
+                  id: 123e4567-e89b-12d3-a456-426614174000
+        required: true
+      responses:
+        "204":
+          description: Roles updated successfully.
+          x-microcks-refs:
+          - updateRoles
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /users:
+    get:
+      tags:
+      - Users
+      summary: Search Users
+      description: Searches for Users based on provided filters and pagination options.
+      operationId: searchUsers
+      parameters:
+      - name: page
+        in: query
+        description: the index of page to be retrieved
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageQueryParam"
+        examples:
+          filteredByNamesMailStatusFederated:
+            summary: First page
+            value: 0
+          filteredByUsernameAsc:
+            summary: First page
+            value: 0
+          filteredByEmailAsc:
+            summary: First page
+            value: 0
+          filteredByEmailDesc:
+            summary: First page
+            value: 0
+          filteredByUsernameDesc:
+            summary: First page
+            value: 0
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: First page
+            value: 0
+          firstPage:
+            summary: First page
+            value: 0
+          firstPageSortedByUsernameAsc:
+            summary: First page sorted by username asc
+            value: 0
+          firstPageSortedByUsernameDesc:
+            summary: First page sorted by username desc
+            value: 0
+          firstPageFilteredByCode:
+            summary: First page filtered by organization
+            value: 0
+          secondPageEmpty:
+            summary: Second page empty
+            value: 1
+      - name: pageSize
+        in: query
+        description: maximum number of items per page desired by client
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageSizeQueryParam"
+        examples:
+          filteredByUsernameAsc:
+            summary: First page
+            value: 10
+          filteredByUsernameDesc:
+            summary: First page
+            value: 10
+          filteredByEmailAsc:
+            summary: First page
+            value: 10
+          filteredByEmailDesc:
+            summary: First page
+            value: 10
+          filteredByNamesMailStatusFederated:
+            summary: page size
+            value: 10
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: page size
+            value: 10
+          firstPage:
+            summary: First page
+            value: 10
+          firstPageSortedByUsernameAsc:
+            summary: First page sorted by username asc
+            value: 10
+          firstPageSortedByUsernameDesc:
+            summary: First page sorted by username desc
+            value: 10
+          firstPageFilteredByCode:
+            summary: First page filtered by organization
+            value: 10
+          secondPageEmpty:
+            summary: Second page empty
+            value: 10
+      - name: firstName
+        in: query
+        description: the first name of the user
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          filteredByNamesMailStatusFederated:
+            summary: First name
+            value: Ethan
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: First name
+            value: Liam
+          firstPageFilteredByCode:
+            summary: Default
+            value: Alexander
+      - name: lastName
+        in: query
+        description: the last name of the user
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          filteredByNamesMailStatusFederated:
+            summary: last name
+            value: Marsh
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: last name
+            value: Kensington
+          firstPageFilteredByCode:
+            summary: Default
+            value: Williams
+      - name: username
+        in: query
+        description: the username of the user
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          filteredByUsernameAsc:
+            summary: username
+            value: Marsh
+          filteredByUsernameDesc:
+            summary: username
+            value: marshethan
+          filteredByNamesMailStatusFederated:
+            summary: username
+            value: marshethan
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: username
+            value: Kensington
+      - name: email
+        in: query
+        description: the email of the user
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          filteredByEmailAsc:
+            summary: email
+            value: ethanmarsh@mail.com
+          filteredByEmailDesc:
+            summary: email
+            value: ethanmarsh@mail.com
+          filteredByNamesMailStatusFederated:
+            summary: email
+            value: ethanmarsh@mail.com
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: email
+            value: liamkensington@mail.com
+          firstPageFilteredByCode:
+            summary: Default
+            value: a.w@example.com
+      - name: enabled
+        in: query
+        description: filter enabled or disabled Users
+        required: false
+        schema:
+          type: boolean
+        examples:
+          filteredByNamesMailStatusFederated:
+            summary: filter enabled or disabled Users
+            value: ENABLED
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: filter enabled or disabled Users
+            value: DISABLED
+          firstPageFilteredByCode:
+            summary: Default
+            value: true
+      - name: federated
+        in: query
+        description: filter federated or non-federated Users
+        required: false
+        schema:
+          type: boolean
+        examples:
+          filteredByNamesMailStatusFederated:
+            summary: filter federated or non-federated Users
+            value: true
+          filteredByNamesMailStatusFederatedEmptyList:
+            summary: filter federated or non-federated Users
+            value: false
+          firstPageFilteredByCode:
+            summary: Default
+            value: true
+      - name: unpaged
+        in: query
+        description: "if true, the response will not be paginated and will return\
+          \ all matching Users"
+        required: false
+        schema:
+          type: boolean
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: false
+      responses:
+        "200":
+          description: Successfully retrieved search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersPagedResponse"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    self: /users?status=ENABLED&sort=username&page=2&pageSize=2
+                    pageSize: 2
+                    page: 2
+                    total: 7
+                    first: /users?status=ENABLED&sort=username&page=0&pageSize=2
+                    last: /users?status=ENABLED&sort=username&page=4&pageSize=2
+                    prev: /users?status=ENABLED&sort=username&page=1&pageSize=2
+                    next: /users?status=ENABLED&sort=username&page=3&pageSize=2
+                    items:
+                    - firstName: Alexander
+                      lastName: Williams
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                      id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      email: a.w@email.com
+                      enabled: true
+                      username: a.w
+                      federated: false
+                    - firstName: Brian
+                      lastName: Johnson
+                      roles:
+                      - T1UAR_M
+                      id: 2b89ec32-4dee-403d-9f80-cd18d374fa83
+                      email: b.j@email.com
+                      enabled: false
+                      username: b.j
+                      federated: false
+                filteredByUsernameAsc:
+                  summary: First page
+                  value:
+                    self: /users?page=0&pageSize=10&sort=useranem&firstname=Ethan&lastname=Marsh&username=marshethan&email=ethanmarsh@mail.com&status=ENABLED&federated=true
+                    pageSize: 10
+                    page: 0
+                    total: 2
+                    first: https://first.com
+                    last: https://last.com
+                    prev: https://prev.com
+                    next: https://next.com
+                    items:
+                    - id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      firstName: Ethan
+                      lastName: Marsh
+                      email: ethanmarsh1@email.com
+                      username: EthanMarsh1
+                      password: password
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                    - id: 1e79ec32-3dee-403d-9f80-cd18d374fa83
+                      firstName: Ethan
+                      lastName: Marsh
+                      email: ethanmarsh2@email.com
+                      username: EthanMarsh2
+                      password: password
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                filteredByUsernameDesc:
+                  summary: First page
+                  value:
+                    self: /users?page=0&pageSize=10&sort=useranem&firstname=Ethan&lastname=Marsh&username=marshethan&email=ethanmarsh@mail.com&status=ENABLED&federated=true
+                    pageSize: 10
+                    page: 0
+                    total: 1
+                    first: https://first.com
+                    last: https://last.com
+                    prev: https://prev.com
+                    next: https://next.com
+                    items:
+                    - id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      firstName: Ethan
+                      lastName: Marsh
+                      email: ethanmarsh@email.com
+                      username: EthanMarsh
+                      password: password
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                filteredByEmailAsc:
+                  summary: First page
+                  value:
+                    self: /users?page=0&pageSize=10&sort=useranem&firstname=Ethan&lastname=Marsh&username=marshethan&email=ethanmarsh@mail.com&status=ENABLED&federated=true
+                    pageSize: 10
+                    page: 0
+                    total: 1
+                    first: https://first.com
+                    last: https://last.com
+                    prev: https://prev.com
+                    next: https://next.com
+                    items:
+                    - id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      firstName: Ethan
+                      lastName: Marsh
+                      email: ethanmarsh@email.com
+                      username: EthanMarsh
+                      password: password
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                filteredByEmailDesc:
+                  summary: First page
+                  value:
+                    self: /users?page=0&pageSize=10&sort=useranem&firstname=Ethan&lastname=Marsh&username=marshethan&email=ethanmarsh@mail.com&status=ENABLED&federated=true
+                    pageSize: 10
+                    page: 0
+                    total: 1
+                    first: https://first.com
+                    last: https://last.com
+                    prev: https://prev.com
+                    next: https://next.com
+                    items:
+                    - id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      firstName: Ethan
+                      lastName: Marsh
+                      email: ethanmarsh@email.com
+                      username: EthanMarsh
+                      password: password
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                firstPage:
+                  summary: first page example
+                  value:
+                  - self: /users?status&page=0
+                  - pageSize: 2
+                  - page: 0
+                  - total: 2
+                  - items:
+                    - firstName: Alexander
+                      lastName: Williams
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                      id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      email: a.w@email.com
+                      enabled: true
+                      username: a.w
+                      federated: true
+                    - firstName: Alexander
+                      lastName: Williams
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                      id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      email: a.w@email.com
+                      enabled: true
+                      username: a.w
+                      federated: false
+                filteredByNamesMailStatusFederated:
+                  summary: filtered example
+                  value:
+                    self: /users?page=0&pageSize=10&sort=useranem&firstname=Ethan&lastname=Marsh&username=marshethan&email=ethanmarsh@mail.com&status=ENABLED&federated=true
+                    pageSize: 10
+                    page: 0
+                    total: 1
+                    first: https://first.com
+                    last: https://last.com
+                    prev: https://prev.com
+                    next: https://next.com
+                    items:
+                    - id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                      firstName: Ethan
+                      lastName: Marsh
+                      email: ethanmarsh@email.com
+                      username: EthanMarsh
+                      password: password
+                      roles:
+                      - ONBOARDER_M
+                      - T1UAR_M
+                filteredByNamesMailStatusFederatedEmptyList:
+                  summary: filtered example
+                  value:
+                    self: /users?page=0&pageSize=10&sort=useranem&firstname=Ethan&lastname=Marsh&username=Marsh&email=ethanmarsh@mail.com&status=ENABLED&federated=true
+                    pageSize: 10
+                    page: 0
+                    total: 1
+                    items: []
+                firstPageFilteredByCode:
+                  summary: "response filtered by username, firstname, lastname, email,\
+                    \ status, federated"
+                  value:
+                    self: null
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    post:
+      tags:
+      - Users
+      summary: Create User
+      description: Creates a new user.
+      operationId: createNewUser
+      requestBody:
+        description: User to be created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  firstName: Alexander
+                  lastName: Williams
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+                  id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                  email: a.w@email.com
+                  enabled: true
+                  username: a.w
+                  password: changeme
+        required: true
+      responses:
+        "201":
+          description: Successfully created user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    id: f49f9747-4fd4-4057-9937-1a86dd6e7142
+                    firstName: Alexander
+                    lastName: Williams
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                    email: a.w@email.com
+                    enabled: true
+                    username: a.w
+                    password: changeme
+                createNewUser:
+                  summary: create new user
+                  value:
+                    id: f49f9747-4fd4-4057-9937-1a86dd6e7142
+                    firstName: Alexander
+                    lastName: Williams
+                    roles:
+                    - ONBOARDER_M
+                    - T1UAR_M
+                    email: a.w@email.com
+                    enabled: true
+                    username: a.w
+                    password: password
+                    federated: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: User with the same code or name already exists
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                conflict:
+                  summary: User already exists
+                  value:
+                    type: urn:problem-type:simpl:userAlreadyExist
+                    title: User already exists
+                    detail: User with the same code or name already exists
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-microcks-operation:
+        dispatcher: JSON_BODY
+        dispatcherRules: |
+          {
+            "exp": "/email",
+            "operator": "equals",
+            "cases": {
+              "a.w@email.com": "createNewUser",
+              "a.wemail.com": "badRequest",
+              "aa.w@email.com": "conflict",
+              "unauthorized@email.com": "unauthorized",
+              "forbidden@email.com": "forbidden",
+              "default": "badRequest"
+            }
+          }
+      x-simpl-roles:
+      - T1UAR_M
+  /users/import:
+    post:
+      tags:
+      - Users
+      summary: Imports the provided Users into the system
+      description: The provided Users will be imported into the system
+      operationId: importUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - firstName: Alexander
+                  lastName: Williams
+                  roles:
+                  - ONBOARDER_M
+                  - T1UAR_M
+                  id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+                  email: a.w@email.com
+                  status: ENABLED
+                  username: a.w
+                  federated: false
+                  password: changeme
+                - firstName: Brian
+                  lastName: Johnson
+                  roles:
+                  - T1UAR_M
+                  id: 2b89ec32-4dee-403d-9f80-cd18d374fa83
+                  email: b.j@email.com
+                  status: DISABLED
+                  username: b.j
+                  federated: false
+                  password: changeme
+        required: true
+      responses:
+        "201":
+          description: Created
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /roles/{roleId}:
+    get:
+      tags:
+      - Roles
+      summary: Find Role by ID
+      description: Retrieves a Role by its unique identifier.
+      operationId: getRoleById
+      parameters:
+      - name: roleId
+        in: path
+        description: UUID of the Role to be retrieved
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 8f031077-1d65-4f9c-96cf-8a388db51469
+      responses:
+        "200":
+          description: Successfully retrieved Role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    id: 25827477-c58d-4573-ad7d-f80e27d3fede
+                    code: RESEARCHER
+                    name: RESEARCHER
+                    description: Researcher who is able to access research only datasets
+                    builtIn: false
+                    enabled: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    put:
+      tags:
+      - Roles
+      summary: Update Role
+      description: Updates an existing Role by its unique identifier.
+      operationId: updateRoleById
+      parameters:
+      - name: roleId
+        in: path
+        description: UUID of the Role to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 8f031077-1d65-4f9c-96cf-8a388db51469
+      requestBody:
+        description: Updated Role data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Role"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  code: SD_PUBLISHER
+                  name: SD Publisher
+                  description: Role defined for the user who is responsible for creating
+                    and publishing the self-description on the catalogue
+                  enabled: true
+        required: true
+      responses:
+        "204":
+          description: Successfully updated Role
+          x-microcks-refs:
+          - default
+        "400":
+          description: "Bad request, invalid input data"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:badRequest
+                    title: Bad request
+                    detail: Invalid input data
+                    status: 400
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Conflict with the current state of the target resource
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                builtIn-read-only:
+                  value:
+                    type: urn:problem-type:simpl:badRequest:builtInRoleReadOnly
+                    title: Built-in Roles are read only
+                    detail: "Built-in Roles cannot be created, updated or deleted"
+                    status: 409
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    delete:
+      tags:
+      - Roles
+      summary: Delete Role
+      description: Deletes an Role by its unique identifier.
+      operationId: deleteRoleById
+      parameters:
+      - name: roleId
+        in: path
+        description: UUID of the Role to be deleted
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 25827477-c58d-4573-ad7d-f80e27d3fede
+      responses:
+        "204":
+          description: Successfully deleted Role
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Conflict with the current state of the target resource
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                role-is-assigned:
+                  value:
+                    type: urn:problem-type:simpl:badRequest:roleIsAssigned
+                    title: Role is assigned
+                    detail: Role is assigned to one or more Users
+                    status: 409
+                builtIn-read-only:
+                  value:
+                    type: urn:problem-type:simpl:badRequest:builtInRoleReadOnly
+                    title: Built-in Roles are read only
+                    detail: "Built-in Roles cannot be created, updated or deleted"
+                    status: 409
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /roles/{roleId}/identityAttributes:
+    get:
+      tags:
+      - Roles
+      summary: Retrieve identity attributes for a role
+      description: Returns the list of identity attributes associated with the specified
+        role.
+      operationId: getRoleIdentityAttributes
+      parameters:
+      - name: roleId
+        in: path
+        description: The ID of the role.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved the list of identity attributes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IdentityAttribute"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                  - code: CONSUMER
+                  - code: DATA_PROVIDER
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    put:
+      tags:
+      - Roles
+      summary: Update identity attributes for a role
+      description: "Replaces the identity attributes for the specified role. If the\
+        \ list is empty, all existing attributes will be deleted."
+      operationId: updateRoleIdentityAttributes
+      parameters:
+      - name: roleId
+        in: path
+        description: The ID of the role.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/IdentityAttribute"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - code: CONSUMER
+                - code: DATA_PROVIDER
+        required: true
+      responses:
+        "204":
+          description: Identity attributes updated successfully.
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /roles:
+    get:
+      tags:
+      - Roles
+      summary: Search Roles
+      description: Searches for Roles based on provided filters and pagination options.
+      operationId: searchRoles
+      parameters:
+      - name: page
+        in: query
+        description: the index of page to be retrieved
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageQueryParam"
+        examples:
+          firstPage:
+            summary: First page
+            value: 0
+          firstPageSortedByCodeAsc:
+            summary: First page sorted by code asc
+            value: 0
+          firstPageSortedByCodeDesc:
+            summary: First page sorted by code desc
+            value: 0
+          firstPageFilteredByCode:
+            summary: First page filtered by param
+            value: 0
+          secondPageEmpty:
+            summary: Second page empty
+            value: 1
+      - name: pageSize
+        in: query
+        description: maximum number of items per page desired by client
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageSizeQueryParam"
+        examples:
+          firstPage:
+            summary: First page
+            value: 10
+          firstPageSortedByCodeAsc:
+            summary: First page sorted by code asc
+            value: 10
+          firstPageSortedByCodeDesc:
+            summary: First page sorted by code desc
+            value: 10
+          firstPageFilteredByCode:
+            summary: First page filtered by organization
+            value: 10
+          secondPageEmpty:
+            summary: Second page empty
+            value: 10
+      - name: sort
+        in: query
+        description: "Multi-value query param with list of properties to sort on.\
+          \ Direction is ascending by default. To indicate descending, prefix property\
+          \ with -."
+        required: false
+        schema:
+          $ref: "#/components/schemas/SortQueryParam"
+        examples:
+          firstPageSortedByCodeAsc:
+            summary: First page sorted by code asc
+            value: code
+          firstPageSortedByCodeDesc:
+            summary: First page sorted by code desc
+            value: -code
+      - name: code
+        in: query
+        description: the role code
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: ACME_1
+      - name: id
+        in: query
+        description: the role id
+        required: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: 61012aa9-8b92-4796-b373-fd26d5a42613
+      - name: name
+        in: query
+        description: the name of the role
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: ACME Role 1
+      - name: enabled
+        in: query
+        description: filter enabled or disabled Roles
+        required: false
+        schema:
+          type: boolean
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: true
+      - name: builtIn
+        in: query
+        description: filter built-in Roles
+        required: false
+        schema:
+          type: boolean
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: false
+      - name: unpaged
+        in: query
+        description: "if true, the response will not be paginated and will return\
+          \ all matching Roles"
+        required: false
+        schema:
+          type: boolean
+        examples:
+          firstPageFilteredByCode:
+            summary: Default
+            value: false
+      responses:
+        "200":
+          description: Successfully retrieved search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolesPagedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+    post:
+      tags:
+      - Roles
+      summary: Create Role
+      description: Creates a new role.
+      operationId: createNewRole
+      requestBody:
+        description: Role to be created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Role"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  code: SD_PUBLISHER
+                  name: SD Publisher
+                  description: Role defined for the user who is responsible for creating
+                    and publishing the self-description on the catalogue
+                  enabled: true
+        required: true
+      responses:
+        "201":
+          description: Successfully created role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    id: 61012aa9-8b92-4796-b373-fd26d5a42613
+                    code: SD_PUBLISHER
+                    name: SD Publisher
+                    description: Role defined for the user who is responsible for
+                      creating and publishing the self-description on the catalogue
+                    enabled: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Role with the same code or name already exists
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                role-already-exists:
+                  value:
+                    type: urn:problem-type:simpl:roleAlreadyExist
+                    title: Role already exists
+                    detail: Role with the same code or name already exists
+                    status: 409
+                builtIn-read-only:
+                  value:
+                    type: urn:problem-type:simpl:badRequest:builtInRoleReadOnly
+                    title: Built-in Roles are read only
+                    detail: "Built-in Roles cannot be created, updated or deleted"
+                    status: 409
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /roles/import:
+    post:
+      tags:
+      - Roles
+      summary: Imports the provided Roles into the system
+      description: The provided Roles will be imported into the system
+      operationId: importRoles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Role"
+            examples:
+              default:
+                summary: Default example
+                value:
+                - id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+                  code: SD_PUBLISHER
+                  name: SD Publisher
+                  description: Role defined for the user who is responsible for creating
+                    and publishing the self-description on the catalogue
+                  enabled: true
+                - id: 25827477-c58d-4573-ad7d-f80e27d3fede
+                  code: RESEARCHER
+                  name: RESEARCHER
+                  description: Researcher who is able to access research only datasets
+                  enabled: true
+        required: true
+      responses:
+        "201":
+          description: Created
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Conflict with the current state of the target resource
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                builtIn-read-only:
+                  value:
+                    type: urn:problem-type:simpl:badRequest:builtInRoleReadOnly
+                    title: Built-in Roles are read only
+                    detail: "Built-in Roles cannot be created, updated or deleted"
+                    status: 409
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+  /user:
+    get:
+      tags:
+      - User Session
+      summary: Fetch user session data for a logged in user
+      description: Retrieves user data. Invoked by a user who wants to know its basic
+        user information
+      operationId: getUserSessionData
+      responses:
+        "200":
+          description: Successfully retrieved user data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSessionData"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    username: aliza.clay
+                    firstName: Aliza
+                    lastName: Clay
+                    email: aliza.clay@example.com
+                    authProvider: SIMPL_AUTH
+                    roles:
+                    - SD_PUBLISHER
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles: []
+  /roleRequests:
+    get:
+      tags:
+      - Role Requests
+      summary: Search Role Requests
+      description: Searches for Role Requests based on provided filters and pagination
+        options.
+      operationId: searchRoleRequests
+      parameters:
+      - name: page
+        in: query
+        description: the index of page to be retrieved
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageQueryParam"
+        examples:
+          firstPage:
+            summary: First page
+            value: 0
+          firstPageSortedByCreatedTimestampAsc:
+            summary: First page sorted by created timestamp asc
+            value: 0
+          firstPageSortedByCreatedTimestampDesc:
+            summary: First page sorted by created timestamp desc
+            value: 0
+          firstPageFilteredByValue:
+            summary: First page filtered by param
+            value: 0
+          secondPageEmpty:
+            summary: Second page empty
+            value: 1
+      - name: pageSize
+        in: query
+        description: maximum number of items per page desired by client
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageSizeQueryParam"
+        examples:
+          firstPage:
+            summary: First page
+            value: 10
+          firstPageSortedByCreatedTimestampAsc:
+            summary: First page sorted by code asc
+            value: 10
+          firstPageSortedByCreatedTimestampDesc:
+            summary: First page sorted by code desc
+            value: 10
+          firstPageFilteredByValue:
+            summary: First page filtered by param
+            value: 10
+          secondPageEmpty:
+            summary: Second page empty
+            value: 10
+      - name: sort
+        in: query
+        description: "Multi-value query param with list of properties to sort on.\
+          \ Direction is ascending by default. To indicate descending, prefix property\
+          \ with -."
+        required: false
+        schema:
+          $ref: "#/components/schemas/SortQueryParam"
+        examples:
+          firstPageSortedByCreatedTimestampAsc:
+            summary: First page sorted by created timestamp asc
+            value: createdTimestamp
+          firstPageSortedByCreatedTimestampDesc:
+            summary: First page sorted by created timestamp desc
+            value: -createdTimestamp
+      - name: email
+        in: query
+        description: the requestor's email
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+        examples:
+          firstPageFilteredByValue:
+            summary: Default
+            value: a.w@email.com
+      - name: status
+        in: query
+        description: filter role request by status
+        required: false
+        schema:
+          type: string
+          enum:
+          - OPEN
+          - CANCELED
+          - APPROVED
+          - REJECTED
+        examples:
+          firstPageFilteredByValue:
+            summary: Default
+            value: OPEN
+      responses:
+        "200":
+          description: Successfully retrieved search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleRequestPagedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-simpl-roles:
+      - T1UAR_M
+    post:
+      tags:
+      - Role Requests
+      summary: Create Role Request
+      description: Creates a new role request.
+      operationId: createNewRoleRequest
+      requestBody:
+        description: Role request to be created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoleRequest"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  rolesRequested:
+                  - SD_PUBLISHER
+              singleRoleRequestExample:
+                summary: role request for a single not assigned roles
+                value:
+                  rolesRequested:
+                  - SD_PUBLISHER
+              multipleRoleRequestExample:
+                summary: role request for multiple not assigned roles
+                value:
+                  rolesRequested:
+                  - SD_PUBLISHER
+                  - SD_ADMIN1
+                  - SD_ADMIN2
+        required: true
+      responses:
+        "201":
+          description: Successfully created role request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateRoleRequestResponse"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    id: a90aa1f4-895f-4303-b783-6a6285abd62a
+                    createdBy: t.w@example.com
+                    status: OPEN
+                    rolesRequested:
+                    - SD_PUBLISHER
+                    creationTimestamp: 2025-11-11T17:31:27Z
+                    lastUpdateTimestamp: 2025-11-11T17:31:27Z
+                open_rq_example:
+                  summary: Open Role Request Example
+                  value:
+                    id: 9f1c3c58-7b8b-4c65-ae78-4d9b5eac3c94
+                    createdBy: t.w@example.com
+                    status: OPEN
+                    rolesRequested:
+                    - SD_PUBLISHER
+                    creationTimestamp: 2025-12-01T17:31:27Z
+                    lastUpdateTimestamp: 2025-12-01T17:31:27Z
+                iattrm_rq_example:
+                  summary: IATTR_M Role Request example
+                  value:
+                    id: e3b2f8f4-4c9e-4c6a-bb61-2e3a7fe4db12
+                    createdBy: t.w@example.com
+                    status: OPEN
+                    rolesRequested:
+                    - IATTR_M
+                    creationTimestamp: 2025-12-01T17:31:27Z
+                    lastUpdateTimestamp: 2025-12-01T17:31:27Z
+                t2iaam_rq_example:
+                  summary: T2IAAM Role Request example
+                  value:
+                    id: 7c4f26d1-bc39-4ea2-8bb7-0fdcce60b8bd
+                    createdBy: t.w@example.com
+                    status: OPEN
+                    rolesRequested:
+                    - T2IAA_M
+                    creationTimestamp: 2025-12-01T17:31:27Z
+                    lastUpdateTimestamp: 2025-12-01T17:31:27Z
+                canceled_rq_example:
+                  summary: Canceled role request example
+                  value:
+                    id: c1f8b3b7-9d1a-4e4d-9a76-d0e3fa985a92
+                    createdBy: a.b@example.com
+                    status: CANCELED
+                    rolesRequested:
+                    - SD_ADMIN1
+                    creationTimestamp: 2025-12-01T17:31:27Z
+                    lastUpdateTimestamp: 2025-12-01T17:31:27Z
+                approved_rq_example:
+                  summary: Approved role request example
+                  value:
+                    id: 0d8fb13d-9ad2-4f18-a0a1-8c3d4b7fce44
+                    createdBy: c.x@example.com
+                    status: APPROVED
+                    rolesRequested:
+                    - SD_ADMIN2
+                    creationTimestamp: 2025-12-02T18:31:27Z
+                    lastUpdateTimestamp: 2025-12-02T18:31:27Z
+                rejected_rq_example:
+                  summary: Rejected role request example
+                  value:
+                    id: 4e1f68c4-0e1c-49b0-9f2f-3472ef4b92be
+                    createdBy: c.x@example.com
+                    status: REJECTED
+                    rolesRequested:
+                    - SD_ADMIN3
+                    creationTimestamp: 2025-12-02T18:31:27Z
+                    lastUpdateTimestamp: 2025-12-02T18:31:27Z
+                multiple_rq_open_example:
+                  summary: Multiple open role request example
+                  value:
+                    id: 83bb1e35-b5c5-4ca4-b70e-5d0a3847a175
+                    createdBy: c.z@example.com
+                    status: OPEN
+                    rolesRequested:
+                    - IATTR_M
+                    - T2IAA_M
+                    creationTimestamp: 2025-12-03T18:31:27Z
+                    lastUpdateTimestamp: 2025-12-03T18:31:27Z
+                multiple_rq_rejected_example:
+                  summary: Multiple rejected role request example
+                  value:
+                    id: 2ac4b1ce-8c52-4c18-8567-52f1ba630ebc
+                    createdBy: a.z@example.com
+                    status: REJECTED
+                    rolesRequested:
+                    - T1UAR_M
+                    - IATTR_M
+                    creationTimestamp: 2025-12-04T17:31:27Z
+                    lastUpdateTimestamp: 2025-12-04T17:31:27Z
+                multiple_rq_approved_example:
+                  summary: Multiple approved role request example
+                  value:
+                    id: 2ac4b1ce-8c52-4c18-8567-52f1ba630ebc
+                    createdBy: a.z@example.com
+                    status: APPROVED
+                    rolesRequested:
+                    - T2IAA_M
+                    - IATTR_M
+                    creationTimestamp: 2025-11-02T17:31:27Z
+                    lastUpdateTimestamp: 2025-11-02T17:31:27Z
+                multiple_rq_canceled_example:
+                  summary: Multiple canceled role request example
+                  value:
+                    id: d7e4f77d-2b7a-4a34-b2c8-6c0c2f6f9e04
+                    createdBy: b.p@example.com
+                    status: CANCELED
+                    rolesRequested:
+                    - T2IAA_M
+                    - T1UAR_M
+                    creationTimestamp: 2025-11-02T17:31:27Z
+                    lastUpdateTimestamp: 2025-11-02T17:31:27Z
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: One or more roles specified in the request are already assigned
+            to the user
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                role-already-assigned:
+                  value:
+                    type: urn:problem-type:simpl:roleAlreadyAssigned
+                    title: Role already assigned
+                    detail: One or more roles specified in the request are already
+                      assigned to the user
+                    status: 409
+        "422":
+          description: One or more roles specified in the request have been already
+            requested with another role request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:unprocessableEntity
+                    title: Unprocessable Entity
+                    detail: Unprocessable Content
+                    status: 422
+                role-already-requested:
+                  value:
+                    type: urn:problem-type:simpl:unprocessableEntity
+                    title: Role already requested
+                    detail: One or more roles specified in the request have been already
+                      requested with another role request
+                    status: 422
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |
+          import groovy.json.JsonSlurper
+
+          def json = new JsonSlurper().parseText(mockRequest.requestContent)
+          def roles = json.rolesRequested ?: []
+
+          if (roles == ["IATTR_M"]) return "iattrm_rq_example"
+          if (roles == ["T2IAA_M"]) return "t2iaam_rq_example"
+          if (roles == ["IATTR_M","T2IAA_M"]) return "multiple_rq_open_example"
+          if (roles == ["T1UAR_M","IATTR_M"]) return "multiple_rq_rejected_example"
+          if (roles == ["T2IAA_M","IATTR_M"]) return "multiple_rq_approved_example"
+          if (roles == ["T2IAA_M","T1UAR_M"]) return "multiple_rq_canceled_example"
+
+          if (roles == ["SD_PUBLISHER"]) return "open_rq_example"
+          if (roles == ["SD_ADMIN1"]) return "canceled_rq_example"
+          if (roles == ["SD_ADMIN2"]) return "approved_rq_example"
+          if (roles == ["SD_ADMIN3"]) return "rejected_rq_example"
+
+          if (roles.isEmpty()) return "badRequest"
+          if (roles == null) return "badRequest"
+          if (roles == ["malformed-role"]) return "badRequest"
+          if (roles == ["SD_UNKNOWN_ROLE"]) return "badRequest"
+          if (roles == ["SD_DUMMY_ASSIGNED"]) return "role-already-assigned"
+          if (roles == ["SD_ALREADY_REQUESTED"]) return "role-already-requested"
+          if (roles == ["unauthorized"]) return "unauthorized"
+          if (roles == ["forbidden"]) return "forbidden"
+
+          return "default"
+  /roleRequests/{roleRequestId}:
+    get:
+      tags:
+      - Role Requests
+      summary: Find role request by ID
+      description: Retrieves a role request by its unique identifier.
+      operationId: getRoleRequestById
+      parameters:
+      - name: roleRequestId
+        in: path
+        description: UUID of the role request to be retrieved
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 8f031077-1d65-4f9c-96cf-8a388db51469
+      responses:
+        "200":
+          description: Successfully retrieved Role
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleRequest"
+              examples:
+                default:
+                  summary: Default example
+                  value:
+                    id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+                    createdBy: t.w@example.com
+                    reviewedBy: a.w@example.com
+                    status: APPROVED
+                    rolesRequested:
+                    - SD_PUBLISHER
+                    rolesAssigned:
+                    - SD_PUBLISHER
+                    creationTimestamp: 2025-11-11T17:31:27Z
+                    lastUpdateTimestamp: 2025-11-17T12:05:13Z
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Forbidden"
+        "403":
+          description: "Forbidden, the user does not have the roles to perform the\
+            \ operation"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:forbidden
+                    title: Forbidden
+                    detail: The user does not have the roles to perform the operation
+                    status: 403
+                user-has-no-rights-on-role-request:
+                  value:
+                    type: urn:problem-type:simpl:forbidden:userHasNoRightsOnRoleRequest
+                    title: Forbidden
+                    detail: The user is neither the creator nor the reviewer of the
+                      role request
+                    status: 403
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+    put:
+      tags:
+      - Role Requests
+      summary: Update a role request
+      description: Update a role request by its unique identifier.
+      operationId: putRoleRequestById
+      parameters:
+      - name: roleRequestId
+        in: path
+        description: UUID of the role request to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 25827477-c58d-4573-ad7d-f80e27d3fede
+          update_rq_example_request:
+            summary: Update role request example
+            value: 2f7c1a4e-9b62-4d3a-8e91-5c0e4a6d8f2b
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleRequestReview"
+            examples:
+              default:
+                summary: Default example
+                value:
+                  status: APPROVED
+                  rolesAssigned:
+                  - SD_PUBLISHER
+              approved_rq_example:
+                summary: Approved role request example
+                value:
+                  status: APPROVED
+                  rolesAssigned:
+                  - SD_PUBLISHER
+                  - IATTR_M
+              rejected_rq_example:
+                summary: Rejected role request example
+                value:
+                  status: REJECTED
+                  rolesAssigned:
+                  - SD_PUBLISHER
+                  - IATTR_M
+        required: true
+      responses:
+        "204":
+          description: Successfully updated Role Request
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Conflict with the current state of the target resource
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                role-request-is-not-open:
+                  value:
+                    type: urn:problem-type:simpl:conflict:roleRequestIsNotOpen
+                    title: Role request is not in status open
+                    detail: Role request can be reviewed only if its status is OPEN
+                    status: 409
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+      x-microcks-operation:
+        dispatcher: SCRIPT
+        dispatcherRules: |2
+
+          import groovy.json.JsonSlurper
+
+          def json = mockRequest.requestContent ? new JsonSlurper().parseText(mockRequest.requestContent) : [:]
+          def status = json.status ?: ""
+          def rolesAssigned = json.rolesAssigned ?: []
+
+          def uri = mockRequest.getRequest().getRequestURI()
+          def matcher = (uri =~ /roleRequests\/([^\/\?]+)/)
+          def id = matcher ? matcher[0][1] : ""
+
+          if (id == "dummy") return "badRequest"
+          if (!id) return "badRequest"
+
+          if (id == "9c8a1f27-3e54-4b6d-a2f9-71d5c4e8b0aa") return "notFound"
+          if (id == "2f7c1a4e-9b62-4d3a-8e91-5c0e4a6d8f2b") return "role-request-is-not-open"
+
+          if (rolesAssigned == ["INVALID_ROLE"]) return "badRequest"
+
+          if (status == "OPEN") return "badRequest"
+
+          return "default"
+      x-simpl-roles:
+      - T1UAR_M
+    delete:
+      tags:
+      - Role Requests
+      summary: Cancels role request
+      description: Cancels a role request by its unique identifier.
+      operationId: cancelRoleRequestById
+      parameters:
+      - name: roleRequestId
+        in: path
+        description: UUID of the role request to be cancelled
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+        examples:
+          default:
+            summary: Default example
+            value: 25827477-c58d-4573-ad7d-f80e27d3fede
+      responses:
+        "204":
+          description: Successfully cancelled Role Request
+          x-microcks-refs:
+          - default
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: "Forbidden, the user does not have the roles to perform the\
+            \ operation"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:forbidden
+                    title: Forbidden
+                    detail: The user does not have the roles to perform the operation
+                    status: 403
+                user-has-no-rights-on-role-request:
+                  value:
+                    type: urn:problem-type:simpl:forbidden:userHasNoRightsOnRoleRequest
+                    title: Forbidden
+                    detail: The user is not the creator of the role request
+                    status: 403
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Conflict with the current state of the target resource
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                default:
+                  value:
+                    type: urn:problem-type:simpl:conflict
+                    title: Conflict
+                    detail: Conflict with the current state of the target resource
+                    status: 409
+                role-request-is-not-open:
+                  value:
+                    type: urn:problem-type:simpl:conflict:roleRequestIsNotOpen
+                    title: Role request is not in status open
+                    detail: Role request can be cancelled only if its status is OPEN
+                    status: 409
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+  /user/roleRequests:
+    get:
+      tags:
+      - Role Requests
+      summary: Search end user's role requests
+      description: Searches for role requests created by the end user based on provided
+        filters and pagination options.
+      operationId: searchEndUsersRoleRequests
+      parameters:
+      - name: page
+        in: query
+        description: the index of page to be retrieved
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageQueryParam"
+        examples:
+          firstPage:
+            summary: First page
+            value: 0
+          firstPageSortedByCreatedTimestampAsc:
+            summary: First page sorted by created timestamp asc
+            value: 0
+          firstPageSortedByCreatedTimestampDesc:
+            summary: First page sorted by created timestamp desc
+            value: 0
+          firstPageFilteredByValue:
+            summary: First page filtered by param
+            value: 0
+          secondPageEmpty:
+            summary: Second page empty
+            value: 1
+      - name: pageSize
+        in: query
+        description: maximum number of items per page desired by client
+        required: false
+        schema:
+          $ref: "#/components/schemas/PageSizeQueryParam"
+        examples:
+          firstPage:
+            summary: First page
+            value: 10
+          firstPageSortedByCreatedTimestampAsc:
+            summary: First page sorted by code asc
+            value: 10
+          firstPageSortedByCreatedTimestampDesc:
+            summary: First page sorted by code desc
+            value: 10
+          firstPageFilteredByValue:
+            summary: First page filtered by param
+            value: 10
+          secondPageEmpty:
+            summary: Second page empty
+            value: 10
+      - name: sort
+        in: query
+        description: "Multi-value query param with list of properties to sort on.\
+          \ Direction is ascending by default. To indicate descending, prefix property\
+          \ with -."
+        required: false
+        schema:
+          $ref: "#/components/schemas/SortQueryParam"
+        examples:
+          firstPageSortedByCreatedTimestampAsc:
+            summary: First page sorted by created timestamp asc
+            value: createdTimestamp
+          firstPageSortedByCreatedTimestampDesc:
+            summary: First page sorted by created timestamp desc
+            value: -createdTimestamp
+      - name: status
+        in: query
+        description: filter role request by status
+        required: false
+        schema:
+          type: string
+          enum:
+          - OPEN
+          - CANCELED
+          - APPROVED
+          - REJECTED
+          maxLength: 255
+        examples:
+          firstPageFilteredByValue:
+            summary: Default
+            value: OPEN
+      - name: unpaged
+        in: query
+        description: "if true, the response will not be paginated and will return\
+          \ all matching Roles"
+        required: false
+        schema:
+          type: boolean
+        examples:
+          firstPageFilteredByValue:
+            summary: Default
+            value: false
+      responses:
+        "200":
+          description: Successfully retrieved search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleRequestPagedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      security:
+      - oauth2AuthCode: []
+components:
+  schemas:
+    User:
+      type: object
+      example:
+        firstName: Alexander
+        lastName: Williams
+        roles:
+        - ONBOARDER_M
+        - T1UAR_M
+        id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+        email: a.w@email.com
+        enabled: true
+        username: a.w
+        federated: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the unique UUID identifier of the user
+        username:
+          type: string
+          description: the username of the user
+          maxLength: 255
+        firstName:
+          type: string
+          description: the firstname of the user
+          maxLength: 255
+        lastName:
+          type: string
+          description: the lastname of the user
+          maxLength: 255
+        email:
+          type: string
+          description: the email of the user
+          maxLength: 255
+        password:
+          type: string
+          description: the password of the user
+          maxLength: 255
+          writeOnly: true
+        roles:
+          type: array
+          description: the list of roles assigned to the user
+          items:
+            type: string
+        enabled:
+          type: boolean
+          description: boolean flag stating if the user is enabled
+        federated:
+          type: boolean
+          description: boolean flag stating if the user is a federated user
+          readOnly: true
+      required:
+      - email
+      - enabled
+      - firstName
+      - lastName
+      - password
+      - username
+    UpdateUserRequest:
+      type: object
+      example:
+        firstName: Alexander
+        lastName: Williams
+        roles:
+        - ONBOARDER_M
+        - T1UAR_M
+        id: 1e79ec32-3dee-403d-9f80-cd18d374fa82
+        email: a.w@email.com
+        enabled: true
+        username: a.w
+        federated: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the unique UUID identifier of the user
+        username:
+          type: string
+          description: the username of the user
+          maxLength: 255
+        firstName:
+          type: string
+          description: the firstname of the user
+          maxLength: 255
+        lastName:
+          type: string
+          description: the lastname of the user
+          maxLength: 255
+        email:
+          type: string
+          description: the email of the user
+          maxLength: 255
+        roles:
+          type: array
+          description: the list of roles assigned to the user
+          items:
+            type: string
+        enabled:
+          type: boolean
+          description: boolean flag stating if the user is enabled
+        federated:
+          type: boolean
+          description: boolean flag stating if the user is a federated user
+          readOnly: true
+      required:
+      - email
+      - enabled
+      - firstName
+      - lastName
+      - username
+    Role:
+      type: object
+      example:
+        id: 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        code: SD_PUBLISHER
+        name: SD Publisher
+        description: Role defined for the user who is responsible for creating and
+          publishing the self-description on the catalogue
+        builtIn: true
+        enabled: true
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the unique UUID identifier of the role
+        code:
+          type: string
+          description: the unique code identifying the role
+          maxLength: 255
+        name:
+          type: string
+          description: the human readable name of the role
+          maxLength: 255
+        description:
+          type: string
+          description: the human readable description of the role
+          maxLength: 255
+        builtIn:
+          type: boolean
+          description: boolean stating if the role is built-in and therefore cannot
+            be created modified or deleted
+        enabled:
+          type: boolean
+          description: boolean stating if the role is enabled and therefore can be
+            assigned to users
+      required:
+      - code
+      - enabled
+      - name
+    RoleAssignmentRequest:
+      type: object
+      example:
+        rolesIds:
+        - 08da9510-7c1a-462b-9869-53f4d4dcdeab
+        - 9bfca31b-a077-4a50-9199-63d69a79512c
+      properties:
+        rolesIds:
+          type: array
+          description: the list of UUID identifiers of the roles
+          items:
+            type: string
+            format: uuid
+      required:
+      - rolesIds
+    PageQueryParam:
+      type: integer
+      default: 0
+    PageSizeQueryParam:
+      type: integer
+      default: 10
+    UsersPagedResponse:
+      allOf:
+      - $ref: "#/components/schemas/PageResponse"
+      - type: object
+        properties:
+          items:
+            type: array
+            description: Elements in sliced search
+            items:
+              $ref: "#/components/schemas/User"
+    Problem:
+      type: object
+      description: |
+        A Problem Details object (RFC 9457).
+
+        Additional properties specific to the problem type may be present.
+      example:
+        type: urn:problem-type:exampleOrganization:exampleProblem
+        href: https://www.belgif.be/specification/rest/api-guide/#standardized-problem-types
+        title: Description of the type of problem that occurred
+        status: 400
+        detail: Description of specific occurrence of the problem
+        instance: urn:uuid:123e4567-e89b-12d3-a456-426614174000
+      properties:
+        type:
+          type: string
+          format: uri
+          default: about:blank
+          description: |
+            An absolute URI that identifies the problem type.  When dereferenced,
+            it SHOULD provide human-readable documentation for the problem type
+            (e.g., using HTML).
+          example: https://zalando.github.io/problem/constraint-violation
+        title:
+          type: string
+          description: |
+            A short, summary of the problem type. Written in english and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized); example: Service Unavailable
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence
+            of the problem.
+          example: 503
+          maximum: 600
+          minimum: 100
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Connection to database timed out
+        instance:
+          type: string
+          format: uri
+          description: |-
+            An absolute URI that identifies the specific occurrence of the problem.
+            It may or may not yield further information if dereferenced.
+    IdentityAttribute:
+      type: object
+      example:
+        code: CONSUMER
+      properties:
+        code:
+          type: string
+          description: the unique code identifying the identity attribute
+          maxLength: 255
+      required:
+      - code
+    SortQueryParam:
+      type: array
+      items:
+        type: string
+        description: a sorting policy
+    RolesPagedResponse:
+      allOf:
+      - $ref: "#/components/schemas/PageResponse"
+      - type: object
+        properties:
+          items:
+            type: array
+            description: Elements in sliced search
+            items:
+              $ref: "#/components/schemas/Role"
+    UserSessionData:
+      type: object
+      description: User information needed to prefill the onboarding request form
+      example:
+        username: aliza.clay
+        firstName: Aliza
+        lastName: Clay
+        email: aliza.clay@example.com
+        authProvider: SIMPL_AUTH
+        roles:
+        - SD_PUBLISHER
+      properties:
+        username:
+          type: string
+          description: The username of the authenticated user
+          maxLength: 255
+        firstName:
+          type: string
+          description: The first name of the authenticated user
+          maxLength: 255
+        lastName:
+          type: string
+          description: The last name of the authenticated user
+          maxLength: 255
+        email:
+          type: string
+          description: The email address of the authenticated user
+          maxLength: 255
+        authProvider:
+          $ref: "#/components/schemas/AuthProvider"
+        roles:
+          type: array
+          items:
+            type: string
+    RoleRequestPagedResponse:
+      allOf:
+      - $ref: "#/components/schemas/PageResponse"
+      - type: object
+        properties:
+          items:
+            type: array
+            description: Elements in sliced search
+            items:
+              $ref: "#/components/schemas/RoleRequest"
+    CreateRoleRequest:
+      type: object
+      example:
+        rolesRequested:
+        - SD_PUBLISHER
+      properties:
+        rolesRequested:
+          type: array
+          items:
+            type: string
+            description: the unique identifier of the role
+            maxLength: 255
+      required:
+      - rolesRequested
+    CreateRoleRequestResponse:
+      type: object
+      example:
+        id: 9275a469-f8a3-4b2d-aa58-7e6cac2b72ca
+        createdBy: t.w@example.com
+        status: OPEN
+        rolesRequested:
+        - SD_PUBLISHER
+        creationTimestamp: 2025-11-11T17:31:27Z
+        lastUpdateTimestamp: 2025-11-17T12:05:13Z
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the role request
+          readOnly: true
+        createdBy:
+          type: string
+          description: The email of the reviewer
+          readOnly: true
+        status:
+          type: string
+          description: status of the role request
+          enum:
+          - OPEN
+          - CANCELED
+          - APPROVED
+          - REJECTED
+        rolesRequested:
+          type: array
+          items:
+            type: string
+            description: the unique identifier of the role
+            maxLength: 255
+          readOnly: true
+        creationTimestamp:
+          type: string
+          format: date-time
+          description: The creation timestamp
+        lastUpdateTimestamp:
+          type: string
+          format: date-time
+          description: The last update timestamp
+      required:
+      - createdBy
+      - creationTimestamp
+      - id
+      - lastUpdateTimestamp
+      - rolesRequested
+      - status
+    RoleRequest:
+      type: object
+      example:
+        id: 9275a469-f8a3-4b2d-aa58-7e6cac2b72ca
+        createdBy: t.w@example.com
+        reviewedBy: a.w@example.com
+        status: APPROVED
+        rolesRequested:
+        - SD_PUBLISHER
+        rolesAssigned:
+        - SD_PUBLISHER
+        creationTimestamp: 2025-11-11T17:31:27Z
+        lastUpdateTimestamp: 2025-11-17T12:05:13Z
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the role request
+          readOnly: true
+        createdBy:
+          type: string
+          description: The email of the reviewer
+          readOnly: true
+        reviewedBy:
+          type: string
+          description: The email of the reviewer
+          readOnly: true
+        status:
+          type: string
+          description: status of the role request
+          enum:
+          - OPEN
+          - CANCELED
+          - APPROVED
+          - REJECTED
+        rolesRequested:
+          type: array
+          items:
+            type: string
+            description: the unique identifier of the role
+            maxLength: 255
+          readOnly: true
+        rolesAssigned:
+          type: array
+          items:
+            type: string
+            description: the unique identifier of the role
+            maxLength: 255
+        creationTimestamp:
+          type: string
+          format: date-time
+          description: The creation timestamp
+        lastUpdateTimestamp:
+          type: string
+          format: date-time
+          description: The last update timestamp
+      required:
+      - createdBy
+      - creationTimestamp
+      - lastUpdateTimestamp
+      - rolesRequested
+      - status
+    RoleRequestReview:
+      type: object
+      example:
+        status: OPEN
+        rolesAssigned:
+        - SD_PUBLISHER
+      properties:
+        status:
+          type: string
+          description: status of the role request
+          enum:
+          - OPEN
+          - CANCELED
+          - APPROVED
+          - REJECTED
+        rolesAssigned:
+          type: array
+          items:
+            type: string
+            description: the unique identifier of the role
+            maxLength: 255
+      required:
+      - rolesAssigned
+      - status
+    UserRoleRequestPagedResponse:
+      allOf:
+      - $ref: "#/components/schemas/PageResponse"
+      - type: object
+        properties:
+          items:
+            type: array
+            description: Elements in sliced search
+            items:
+              $ref: "#/components/schemas/RoleRequest"
+    PageResponse:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+          description: Absolute URI to the resource's own location.
+        pageSize:
+          type: integer
+          description: "Maximum number of items per page. For the last page, its value\
+            \ should be independent of the number of actually returned items."
+        page:
+          type: integer
+          description: "Index of the current page of items, should be 1-based (the\
+            \ default and first page is 1)"
+        total:
+          type: integer
+          description: "Total number of items across all pages. If query parameters\
+            \ are used to filter the result set, this is the total of the collection\
+            \ result set, not of the entire collection."
+        first:
+          type: string
+          format: uri
+          description: Absolute URI to the first page
+        last:
+          type: string
+          format: uri
+          description: Absolute URI to the last page
+        prev:
+          type: string
+          format: uri
+          description: Absolute URI to the previous page
+        next:
+          type: string
+          format: uri
+          description: Absolute URI to the next page
+    AuthProvider:
+      type: string
+      description: the Authentication Provider used by the user to login
+      enum:
+      - SIMPL_AUTH
+      - EIDAS
+  responses:
+    BadRequest:
+      description: "Bad request, invalid input data"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            badRequest:
+              summary: Bad Request
+              value:
+                type: urn:problem-type:simpl:badRequest
+                title: Bad request
+                detail: Invalid input data
+                status: 400
+    Unauthorized:
+      description: "Unauthorized, the user is not authenticated"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            unauthorized:
+              summary: Unauthorized
+              value:
+                type: urn:problem-type:simpl:unauthorized
+                title: Unauthorized
+                detail: The user is not authenticated
+                status: 401
+    Forbidden:
+      description: "Forbidden, the user does not have the roles to perform the operation"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            forbidden:
+              summary: Forbidden
+              value:
+                type: urn:problem-type:simpl:forbidden
+                title: Forbidden
+                detail: The user does not have the roles to perform the operation
+                status: 403
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            notFound:
+              summary: Not Found
+              value:
+                type: urn:problem-type:simpl:notFound
+                title: Not Found
+                detail: Resource not found
+                status: 404
+    InternalServerError:
+      description: "Internal Server Error, an internal server error occurred"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            internalServerError:
+              summary: Internal Server Error
+              value:
+                type: urn:problem-type:simpl:internalServerError
+                title: Internal Server Error
+                detail: Internal Server Error
+                status: 500
+  securitySchemes:
+    oauth2AuthCode:
+      type: oauth2
+      description: SIMPL Tier1 end users authentication process
+      flows:
+        authorizationCode:
+          authorizationUrl: ""
+          tokenUrl: ""
+          scopes: {}
+    oauth2ClientCredentials:
+      type: oauth2
+      description: SIMPL internal APIs authentication process
+      flows:
+        clientCredentials:
+          tokenUrl: ""
+          scopes: {}

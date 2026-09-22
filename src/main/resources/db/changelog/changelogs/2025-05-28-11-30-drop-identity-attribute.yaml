@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: Mirko Raimo
+      changes:
+        - dropTable:
+            tableName: identity_attribute

@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Matteo Blasi
+      changes:
+
+        - addColumn:
+            tableName: identity_attribute_roles
+            columns:
+              - column:
+                  name: role
+                  type: UUID
+
+        - addForeignKeyConstraint:
+            baseTableName: identity_attribute_roles
+            baseColumnNames: role
+            referencedTableName: role
+            referencedColumnNames: id
+            constraintName: fk_role_identity_attribute
+
+  - changeSet:
+      id: 2
+      author: Matteo Blasi
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              UPDATE identity_attribute_roles iar
+              SET role = r.id
+              FROM role r
+              WHERE iar.role IS NULL
+                AND iar.role_name IS NOT NULL
+                AND r.code = iar.role_name;
+
+  - changeSet:
+      id: 3
+      author: Matteo Blasi
+      changes:
+        - dropColumn:
+            tableName: identity_attribute_roles
+            columnName: role_name

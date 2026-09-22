@@ -1,0 +1,33 @@
+server:
+  port: 8201
+
+keycloak:
+  url: http://localhost:8200/auth
+  master:
+    user: admin
+    password: admin
+  app:
+    realm: consumer
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:30432/consumer_usersroles
+    username: consumer_usersroles
+    password: consumer_usersroles
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      properties:
+        security.protocol: PLAINTEXT
+
+simpl:
+  kafka:
+    topic:
+      prefix: iaa.iaa-local-consumer.
+    inbox:
+      topic:
+        pattern: iaa\.iaa-local-consumer\..*
+
+microservice:
+  authentication-provider:
+    url: http://localhost:8205
