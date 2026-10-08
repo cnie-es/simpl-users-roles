@@ -8,7 +8,7 @@ ARG IMAGE_CREATED="1970-01-01T00:00:00Z"
 # to the repository where the complete corresponding source code is available.
 LABEL org.opencontainers.image.title="users-roles (CNIE-ES fork)" \
       org.opencontainers.image.description="Modified version of SIMPL users-roles (upstream commit a0badf5c), modified by the EDNEL-RIOJA project team for CNIE-ES between 2026-03-03 and 2026-09-18. See /licenses/NOTICE.EDNEL.md." \
-      org.opencontainers.image.version="2.11.4-edval" \
+      org.opencontainers.image.version="2.11.2-edval" \
       org.opencontainers.image.vendor="CNIE-ES" \
       org.opencontainers.image.licenses="EUPL-1.2" \
       org.opencontainers.image.source="https://github.com/cnie-es/simpl-users-roles" \
